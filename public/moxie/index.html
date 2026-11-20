@@ -89,6 +89,12 @@ nav a:has(svg.gh), footer a:has(svg.gh) { display:inline-flex; align-items:cente
 /* Autoplay loops: never show a play button, even where the browser blocks autoplay. */
 video::-webkit-media-controls, video::-webkit-media-controls-start-playback-button, video::-webkit-media-controls-overlay-play-button { display:none !important; -webkit-appearance:none; }
 video { pointer-events:none; }
+.hero .works { margin:40px auto 0; }
+.hero .works p { color:var(--muted); font-size:.95rem; margin:0 0 14px; }
+.hero .works ul { list-style:none; padding:0; margin:0; display:flex; flex-wrap:wrap; justify-content:center; gap:12px; }
+.hero .works li { display:inline-flex; align-items:center; gap:10px; height:48px; padding:0 18px 0 12px; background:#fff; border-radius:999px; box-shadow:0 0 0 1px rgba(0,0,0,.07); font-weight:600; font-size:1.02rem; }
+.hero .works li img { width:28px; height:28px; object-fit:contain; flex:none; }
+.hero .works li.more { padding:0 18px; background:transparent; box-shadow:none; color:var(--muted); font-weight:500; }
 </style>
 </head>
 <body>
@@ -104,6 +110,15 @@ video { pointer-events:none; }
   <div class="ai">
     <h2>Built for meetings. Runs on your Mac.</h2>
     <p>Our proprietary, blazing-fast, multilingual AI. Prep notes before. Summary and agent-friendly hand-off action items after. Chat with every meeting, any time.</p>
+  </div>
+  <div class="works">
+    <p>Works out of the box with</p>
+    <ul>
+      <li><img src="/img/apps/google-meet.png" alt="" width="28" height="28">Google Meet</li>
+      <li><img src="/img/apps/microsoft-teams.png" alt="" width="28" height="28">Microsoft Teams</li>
+      <li><img src="/img/apps/zoom.png" alt="" width="28" height="28">Zoom</li>
+      <li class="more">and more</li>
+    </ul>
   </div>
 </section>
 
