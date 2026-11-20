@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moxie: AI meeting notes that stay on your Mac</title>
+<meta name="description" content="AI-powered meeting notes and prep. Fully local, completely free and open source. Moxie runs on your Mac.">
+<link rel="icon" href="/favicon.png">
+<style>
+:root { --ink:#1d1d1f; --muted:#6e6e73; --bg:#fbfbfd; --tile:#f2f2f5; --orange:#f5a516; --sans:-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+* { box-sizing:border-box; margin:0; }
+body { background:var(--bg); color:var(--ink); font:17px/1.47 var(--sans); }
+nav { position:sticky; top:0; z-index:5; display:flex; justify-content:space-between; align-items:center; padding:12px clamp(16px,4vw,40px); background:rgba(251,251,253,.8); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); font-size:.9rem; }
+nav b { display:flex; align-items:center; gap:.45rem; font-weight:600; }
+nav img { width:24px; }
+nav a { color:var(--ink); text-decoration:none; }
+.btn { vertical-align:middle; display:inline-flex; gap:.5rem; align-items:center; background:var(--ink); color:#fff !important; border-radius:999px; padding:.75rem 1.4rem; text-decoration:none; font-weight:500; }
+.btn.sm { padding:.35rem .9rem; font-size:.85rem; }
+.btn.link { background:none; color:#06c !important; padding:.75rem .5rem; }
+.btn svg { width:18px; height:18px; }
+.hero { text-align:center; padding:clamp(28px,4vw,56px) 16px 40px; }
+.hero img.logo { width:84px; margin:0 auto 20px; display:block; }
+.hero h1 { font-size:clamp(3rem,8vw,5.5rem); font-weight:700; letter-spacing:-.035em; line-height:1; }
+.hero p { font-size:clamp(1.3rem,2.6vw,1.75rem); color:var(--muted); margin:14px 0 28px; letter-spacing:-.01em; }
+.hero .req { font-size:.85rem; margin-top:14px; }
+.stage { padding:0 clamp(12px,4vw,48px) 80px; }
+.window { max-width:1100px; margin:0 auto; aspect-ratio:16/10; border-radius:18px; background:linear-gradient(180deg,#fff,#f4f2ec); box-shadow:0 50px 100px -40px rgba(0,0,0,.35), 0 0 0 1px rgba(0,0,0,.06); display:grid; place-items:center; color:var(--muted); font-size:.95rem; position:relative; overflow:hidden; }
+.window::before { content:""; position:absolute; top:14px; left:16px; width:52px; height:12px; background:radial-gradient(circle,#ff5f57 5px,transparent 6px) 0 0/18px 12px, radial-gradient(circle,#febc2e 5px,transparent 6px) 18px 0/18px 12px, radial-gradient(circle,#28c840 5px,transparent 6px) 36px 0/18px 12px; background-repeat:no-repeat; }
+/* Sticky scroll story */
+.story { display:grid; gap:40px; max-width:1100px; margin:0 auto; padding:80px 16px; }
+@media (min-width:900px){ .story { grid-template-columns:5fr 7fr; } }
+.steps .step { min-height:70vh; display:flex; flex-direction:column; justify-content:center; opacity:.25; transition:opacity .4s; }
+.steps .step.on { opacity:1; }
+.step small { color:var(--orange); font-weight:600; letter-spacing:.02em; }
+.step h2 { font-size:clamp(2rem,4vw,3rem); letter-spacing:-.03em; line-height:1.05; margin:6px 0 10px; }
+.step p { color:var(--muted); font-size:1.2rem; }
+.sticky { position:sticky; top:15vh; height:70vh; }
+.sticky .window { height:100%; aspect-ratio:auto; }
+.sticky .layer { position:absolute; inset:0; display:grid; place-items:center; opacity:0; transition:opacity .5s, transform .5s; transform:scale(.97); font-weight:500; }
+.sticky .layer.on { opacity:1; transform:none; }
+.layer span { background:var(--tile); padding:.6rem 1rem; border-radius:10px; }
+@media (max-width:899px){ .sticky { display:none; } .steps .step { min-height:auto; padding:32px 0; opacity:1; } }
+.tiles { max-width:1100px; margin:0 auto; padding:0 16px 80px; display:grid; gap:16px; }
+@media (min-width:800px){ .tiles { grid-template-columns:repeat(3,1fr); } }
+.tile { background:#fff; border-radius:22px; padding:32px; box-shadow:0 0 0 1px rgba(0,0,0,.05); }
+.tile h3 { font-size:1.5rem; letter-spacing:-.02em; }
+.tile p { color:var(--muted); margin-top:6px; }
+.end { text-align:center; padding:60px 16px 100px; }
+.end h2 { font-size:clamp(2.2rem,5vw,3.5rem); letter-spacing:-.03em; margin-bottom:24px; }
+footer { border-top:1px solid #e5e5ea; padding:20px clamp(16px,4vw,40px) 40px; color:var(--muted); font-size:.8rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+footer a { color:inherit; }
+@supports (animation-timeline: view()) {
+  .grow { animation: grow linear both; animation-timeline: view(); animation-range: entry 0% cover 45%; }
+  @keyframes grow { from { transform: perspective(1200px) rotateX(18deg) scale(.86); opacity:.4; } to { transform:none; opacity:1; } }
+  .reveal { animation: up linear both; animation-timeline: view(); animation-range: entry 0% cover 30%; }
+  @keyframes up { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:none; } }
+}
+.badge { display:inline-flex; gap:.4rem; align-items:center; background:#fff4dc; color:#7a5200; border-radius:999px; padding:.35rem .85rem; font-size:.85rem; font-weight:600; margin-bottom:22px; }
+.badge i { width:7px; height:7px; border-radius:50%; background:var(--orange); }
+nav .right { display:flex; gap:14px; align-items:center; }
+nav .tag { color:var(--muted); font-size:.82rem; }
+.btn.gh { background:#fff; color:var(--ink) !important; box-shadow:0 0 0 1px rgba(0,0,0,.12); }
+.free { max-width:1100px; margin:0 auto 80px; padding:0 16px; }
+.free .panel { background:var(--ink); color:#fff; border-radius:28px; padding:clamp(40px,7vw,88px) clamp(24px,6vw,72px); display:grid; gap:32px; }
+@media (min-width:900px){ .free .panel { grid-template-columns:1.1fr .9fr; align-items:center; } }
+.free h2 { font-size:clamp(2.4rem,5.5vw,4.2rem); letter-spacing:-.04em; line-height:1; }
+.free h2 em { font-style:normal; color:var(--orange); }
+.free p { color:#a1a1a6; font-size:1.15rem; margin-top:14px; }
+.free ul { list-style:none; padding:0; display:grid; gap:12px; font-size:1.15rem; }
+.free li { display:flex; gap:12px; align-items:baseline; }
+.free li::before { content:"✓"; color:var(--orange); font-weight:700; }
+.free .btn { background:#fff; color:var(--ink) !important; margin-top:28px; }
+.hero .title { display:flex; align-items:center; justify-content:center; gap:clamp(12px,2vw,24px); }
+.hero .title img { width:clamp(64px,9vw,104px); }
+.window.img { padding-top:34px; background:#ecebe6; place-items:stretch; }
+.window.img > img, .window.img > video, .sticky .layer img { width:100%; height:100%; object-fit:cover; object-position:top left; display:block; }
+.sticky { height:auto; top:18vh; align-self:start; }
+.sticky .window { padding-top:34px; background:#ecebe6; height:auto; aspect-ratio:16/10.5; }
+.sticky .layer { top:34px; display:block; }
+.sticky .layer img.portrait { object-fit:contain; object-position:center; background:#f4f2ec; }
+.sticky .layer video { width:100%; height:100%; object-fit:contain; object-position:center; display:block; background:#f4f1ea; }
+.sticky .layer video.portrait { object-fit:contain; object-position:center; background:#f4f2ec; }
+svg.gh { width:1em; height:1em; vertical-align:-0.15em; margin-right:.4em; flex:none; }
+a.btn svg.gh { width:18px; height:18px; margin-right:0; }
+nav a:has(svg.gh), footer a:has(svg.gh) { display:inline-flex; align-items:center; }
+.hero .ai { max-width:760px; margin:56px auto 0; }
+.hero .ai h2 { font-size:clamp(1.8rem,3.6vw,2.6rem); letter-spacing:-.03em; line-height:1.1; }
+.hero .ai p { font-size:clamp(1.15rem,2vw,1.4rem); color:var(--muted); margin:12px 0 0; letter-spacing:-.01em; }
+/* Autoplay loops: never show a play button, even where the browser blocks autoplay. */
+video::-webkit-media-controls, video::-webkit-media-controls-start-playback-button, video::-webkit-media-controls-overlay-play-button { display:none !important; -webkit-appearance:none; }
+video { pointer-events:none; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><symbol id="gh" viewBox="0 0 16 16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></symbol><symbol id="lap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/></symbol></svg>
+<nav><b><img src="/img/cub-512.png" alt="">Moxie</b><span class="right"><span class="tag">Free · Open source</span><a href="#"><svg class="gh" aria-hidden="true"><use href="#gh"/></svg>GitHub</a><a class="btn sm" href="#">Download</a></span></nav>
+
+<section class="hero">
+  <div class="title"><img src="/img/cub-512.png" alt=""><h1>Moxie</h1></div>
+  <p>AI-powered meeting notes and prep.<br>Fully local, completely free.</p>
+  <a class="btn" href="#"><svg><use href="#lap"/></svg>Download for macOS</a>
+  <a class="btn gh" href="#"><svg class="gh" aria-hidden="true"><use href="#gh"/></svg>View on GitHub</a>
+  <p class="req">Free · Open source (GPL 3.0) · macOS 15 or later · Apple silicon or Intel · Windows coming later</p>
+  <div class="ai">
+    <h2>Built for meetings. Runs on your Mac.</h2>
+    <p>Our proprietary, blazing-fast, multilingual AI. Prep notes before. Summary and agent-friendly hand-off action items after. Chat with every meeting, any time.</p>
+  </div>
+</section>
+
+<div class="stage"><div class="window grow img"><video src="/img/video/hero.mp4" poster="/img/video/hero-poster.webp" autoplay muted loop playsinline preload="auto" aria-label="Moxie turns rough meeting notes and the transcript into structured notes with citations"></video></div></div>
+
+<section class="story">
+  <div class="steps">
+    <div class="step" data-i="0"><small>Before</small><h2>Knows what is next.</h2><p>Reads your calendar. Starts on its own.</p></div>
+    <div class="step" data-i="1"><small>During</small><h2>Listens. Quietly.</h2><p>No bot joins. No video.</p></div>
+    <div class="step" data-i="2"><small>After</small><h2>Knows who said what.</h2><p>Speaker names and a cited summary.</p></div>
+    <div class="step" data-i="3"><small>Always</small><h2>Ask anything.</h2><p>Chat with every meeting you have had. Free, with no limits.</p></div>
+  </div>
+  <div class="sticky"><div class="window">
+    <div class="layer on"><img src="/img/shots/home.webp" alt="Moxie Home with the next meeting and recent notes"></div>
+    <div class="layer"><img src="/img/shots/during-meeting.webp" alt="A video call with four people, with the Moxie capture window beside it showing the live transcript"></div>
+    <div class="layer"><video src="/img/video/cite.mp4" poster="/img/video/cite-poster.webp" autoplay muted loop playsinline aria-label="Clicking each citation in the summary highlights the matching line in the transcript"></video></div>
+    <div class="layer"><video src="/img/video/chat.mp4" poster="/img/video/chat-poster.webp" autoplay muted loop playsinline aria-label="Asking Moxie a question across notes and getting a cited answer"></video></div>
+  </div></div>
+</section>
+
+<section class="tiles">
+  <div class="tile reveal"><h3>Stays on your Mac.</h3><p>Audio processing, transcripts and AI notes never leave.</p></div>
+  <div class="tile reveal"><h3>Nothing to train on.</h3><p>Your company's data stays on your laptop. We never see it, so no one can train on it.</p></div>
+  <div class="tile reveal"><h3>Claude, Codex and any agent ready.</h3><p>A local MCP server for your agents.</p></div>
+</section>
+
+<section class="free reveal">
+  <div class="panel">
+    <div>
+      <h2>Free.<br><em>Open source.</em><br>No catch.</h2>
+      <p>Nothing runs on our servers, so there is nothing to charge you for. Read every line of code that touches your meetings.</p>
+      <a class="btn" href="#"><svg class="gh" aria-hidden="true"><use href="#gh"/></svg>View on GitHub</a>
+    </div>
+    <ul>
+      <li>No account</li>
+      <li>No subscription</li>
+      <li>No trial, no paid tier</li>
+      <li>No meeting limits</li>
+      <li>GPL 3.0 licence</li>
+    </ul>
+  </div>
+</section>
+
+<section class="end reveal"><h2>Your meetings.<br>AI enhanced notes.<br>Free.</h2><a class="btn" href="#"><svg><use href="#lap"/></svg>Download for macOS</a> <a class="btn gh" href="#"><svg class="gh" aria-hidden="true"><use href="#gh"/></svg>View on GitHub</a></section>
+
+<footer><span>© 2026 Volantis Labs · Moxie is free and open source under GPL 3.0</span><span><a href="#"><svg class="gh" aria-hidden="true"><use href="#gh"/></svg>GitHub</a> · <a href="/moxie/privacy/">Privacy</a> · <a href="/moxie/terms/">Terms</a></span></footer>
+
+<script>
+// Sticky story: show the screenshot for the step in the middle of the screen.
+const steps = [...document.querySelectorAll('.step')];
+const layers = [...document.querySelectorAll('.layer')];
+const show = (i) => {
+  steps.forEach((s, j) => s.classList.toggle('on', j === i));
+  layers.forEach((l, j) => {
+    l.classList.toggle('on', j === i);
+    const v = l.querySelector('video');
+    if (!v) return;
+    if (j === i) { v.currentTime = 0; v.play().catch(() => {}); } else v.pause();
+  });
+};
+const io = new IntersectionObserver(
+  (entries) => entries.forEach((e) => e.isIntersecting && show(+e.target.dataset.i)),
+  { rootMargin: '-45% 0px -45% 0px' },
+);
+steps.forEach((s) => io.observe(s));
+show(0);
+</script>
+<script>
+// Start every looping video ourselves; retry when it comes into view or the tab returns.
+(() => {
+  const vids = [...document.querySelectorAll('video[autoplay]')];
+  const kick = (v) => { v.muted = true; v.defaultMuted = true; v.playsInline = true; const p = v.play(); if (p) p.catch(() => {}); };
+  vids.forEach((v) => { v.setAttribute('muted', ''); v.removeAttribute('controls'); kick(v); v.addEventListener('canplay', () => kick(v), { once: true }); });
+  const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && e.target.paused && kick(e.target)));
+  vids.forEach((v) => io.observe(v));
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) vids.forEach((v) => v.paused && kick(v)); });
+  ['pointerdown', 'touchstart', 'keydown'].forEach((ev) => window.addEventListener(ev, () => vids.forEach((v) => v.paused && kick(v)), { once: true, passive: true }));
+})();
+</script>
+</body>
+</html>

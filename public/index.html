@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Volantis Labs</title>
+<meta name="description" content="There's a lot of AI, but this one is yours. Volantis Labs builds private AI that runs on your own computer. Our first product is Moxie: AI-powered meeting notes and prep.">
+<link rel="icon" href="/img/volantis-favicon.png">
+<style>
+:root { --ink:#1d1d1f; --muted:#6e6e73; --bg:#fbfbfd; --orange:#f5a516; --sans:-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+* { box-sizing:border-box; margin:0; }
+body { background:var(--bg); color:var(--ink); font:17px/1.47 var(--sans); min-height:100vh; display:flex; flex-direction:column; }
+nav { display:flex; justify-content:space-between; align-items:center; padding:18px clamp(16px,4vw,40px); font-size:.95rem; }
+nav b { font-weight:700; letter-spacing:-.01em; }
+nav a { color:var(--ink); text-decoration:none; margin-left:20px; }
+main { flex:1; display:grid; place-items:center; text-align:center; padding:40px 16px 80px; }
+h1 { font-size:clamp(2.8rem,7vw,5.2rem); font-weight:700; letter-spacing:-.04em; line-height:1.02; max-width:none; margin:0 auto; }
+.sub { font-size:clamp(1.15rem,2.2vw,1.5rem); color:var(--muted); margin:20px auto 56px; max-width:34rem; }
+.card { display:flex; align-items:center; gap:22px; text-align:left; text-decoration:none; color:inherit; background:#fff; border-radius:24px; padding:22px 28px 22px 22px; box-shadow:0 0 0 1px rgba(0,0,0,.06), 0 24px 60px -30px rgba(0,0,0,.25); transition:transform .2s, box-shadow .2s; max-width:560px; margin:0 auto; }
+.card:hover { transform:translateY(-3px); box-shadow:0 0 0 1px rgba(0,0,0,.08), 0 30px 70px -30px rgba(0,0,0,.3); }
+.card img { width:84px; height:84px; }
+.card h2 { font-size:1.6rem; letter-spacing:-.02em; }
+.card p { color:var(--muted); }
+.card .go { margin-left:auto; font-size:1.6rem; color:var(--orange); }
+footer { padding:20px clamp(16px,4vw,40px) 32px; color:var(--muted); font-size:.82rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+footer a { color:inherit; }
+nav .brand { display:inline-flex; align-items:center; gap:.55rem; }
+nav .brand img { width:30px; height:30px; }
+</style>
+</head>
+<body>
+<nav><b class="brand"><img src="/img/volantis-mark-512.png" alt="">Volantis Labs</b><span><a href="/moxie/">Moxie</a><a href="mailto:hello@getmoxieapp.com">Contact</a></span></nav>
+<main>
+  <div>
+    <h1>There's a lot of AI...<br>but this one is yours.</h1>
+    <p class="sub">We build fast, private AI tools that run on your own machine. Free and open source.</p>
+    <a class="card" href="/moxie/">
+      <img src="/img/cub-512.png" alt="">
+      <div><h2>Moxie</h2><p>AI-powered meeting notes and prep. Fully local, completely free.</p></div>
+      <span class="go">→</span>
+    </a>
+  </div>
+</main>
+<footer><span>© 2026 Volantis Labs</span><span><a href="/moxie/privacy/">Privacy</a> · <a href="mailto:hello@getmoxieapp.com">Contact</a> · No cookies. No tracking.</span></footer>
+</body>
+</html>
