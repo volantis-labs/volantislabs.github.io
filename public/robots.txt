@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://volantislabs.dev/moxie/docs/sitemap-index.xml
