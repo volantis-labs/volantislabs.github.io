@@ -1,8 +1,19 @@
 {
   "name": "volantislabs-github-io",
   "compatibility_date": "2026-11-01",
+  "main": "src/worker.js",
   "assets": {
     "directory": "./public",
-    "not_found_handling": "404-page"
-  }
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "moxie-waitlist",
+      "database_id": "c3683b0d-e9b1-4372-8515-8102d07c066a",
+      "migrations_dir": "migrations"
+    }
+  ]
 }
