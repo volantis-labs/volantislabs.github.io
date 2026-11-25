@@ -59,6 +59,7 @@ footer a { color:inherit; }
 .badge i { width:7px; height:7px; border-radius:50%; background:var(--orange); }
 nav .right { display:flex; gap:14px; align-items:center; }
 nav .tag { color:var(--muted); font-size:.82rem; }
+@media (max-width:600px){ nav .tag { display:none; } }
 button.btn { border:0; font:inherit; font-weight:500; cursor:pointer; }
 .btn.alt { background:#fff; color:var(--ink) !important; box-shadow:0 0 0 1px rgba(0,0,0,.12); }
 /* Download row: three buttons of equal width, then the waitlist button below. */
@@ -114,6 +115,21 @@ video { pointer-events:none; }
 .hero .works ul { list-style:none; padding:0; margin:0; display:flex; flex-wrap:wrap; justify-content:center; gap:12px; }
 .hero .works li { display:inline-flex; align-items:center; gap:10px; height:48px; padding:0 18px 0 12px; background:#fff; border-radius:999px; box-shadow:0 0 0 1px rgba(0,0,0,.07); font-weight:600; font-size:1.02rem; }
 .hero .works li img { width:28px; height:28px; object-fit:contain; flex:none; }
+/* Dreaming: a night panel with the Dreaming page loop and four points. */
+.dream { max-width:1100px; margin:0 auto 80px; padding:0 16px; }
+.dream .panel { background:radial-gradient(120% 80% at 50% 0%, #2c2a5c 0%, #17162f 55%, #0f0e20 100%); color:#fff; border-radius:28px; padding:clamp(40px,7vw,88px) clamp(20px,5vw,64px); }
+.dream .head { text-align:center; max-width:720px; margin:0 auto 40px; }
+.dream small { color:#c9b8ff; font-weight:600; letter-spacing:.02em; }
+.dream h2 { font-size:clamp(2.4rem,5.5vw,4.2rem); letter-spacing:-.04em; line-height:1; margin:8px 0 16px; }
+.dream .head p { color:#b4b2cc; font-size:1.15rem; }
+.dream .window { aspect-ratio:16/10.5; box-shadow:0 50px 100px -30px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.08); }
+.dream .window > video { object-fit:contain; object-position:center; background:#f3ecd0; }
+.dream .points { list-style:none; padding:0; margin:48px 0 0; display:grid; gap:24px; }
+@media (min-width:600px){ .dream .points { grid-template-columns:repeat(2,1fr); } }
+@media (min-width:960px){ .dream .points { grid-template-columns:repeat(4,1fr); } }
+.dream .points h3 { font-size:1.2rem; letter-spacing:-.01em; }
+.dream .points p { color:#b4b2cc; margin-top:4px; font-size:1rem; }
+.dream .foot { color:#b4b2cc; text-align:center; margin-top:40px; font-size:1rem; }
 .hero .works li.more { padding:0 18px; background:transparent; box-shadow:none; color:var(--muted); font-weight:500; }
 </style>
 </head>
@@ -146,21 +162,39 @@ video { pointer-events:none; }
   </div>
 </section>
 
-<div class="stage"><div class="window grow img"><video src="/img/video/hero.mp4" poster="/img/video/hero-poster.webp" autoplay muted loop playsinline preload="auto" aria-label="Moxie turns rough meeting notes and the transcript into structured notes with citations"></video></div></div>
+<div class="stage"><div class="window grow img"><video src="/img/video/hero.mp4" poster="/img/video/hero-poster.webp" autoplay muted loop playsinline preload="auto" aria-label="A Moxie note changes from your rough notes to enhanced notes with citations, next to the transcript"></video></div></div>
 
 <section class="story">
   <div class="steps">
-    <div class="step" data-i="0"><small>Before</small><h2>Knows what is next.</h2><p>Reads your calendar. Starts on its own.</p></div>
+    <div class="step" data-i="0"><small>Before</small><h2>Knows what is next.</h2><p>Reads your calendar. Preps a brief. Starts on its own.</p></div>
     <div class="step" data-i="1"><small>During</small><h2>Listens. Quietly.</h2><p>No bot joins. No video.</p></div>
     <div class="step" data-i="2"><small>After</small><h2>Knows who said what.</h2><p>Speaker names and a cited summary.</p></div>
     <div class="step" data-i="3"><small>Always</small><h2>Ask anything.</h2><p>Chat with every meeting you have had. Free, with no limits.</p></div>
   </div>
   <div class="sticky"><div class="window">
-    <div class="layer on"><img src="/img/shots/home.webp" alt="Moxie Home with the next meeting and recent notes"></div>
-    <div class="layer"><img src="/img/shots/during-meeting.webp" alt="A video call with four people, with the Moxie capture window beside it showing the live transcript"></div>
-    <div class="layer"><video src="/img/video/cite.mp4" poster="/img/video/cite-poster.webp" autoplay muted loop playsinline aria-label="Clicking each citation in the summary highlights the matching line in the transcript"></video></div>
-    <div class="layer"><video src="/img/video/chat.mp4" poster="/img/video/chat-poster.webp" autoplay muted loop playsinline aria-label="Asking Moxie a question across notes and getting a cited answer"></video></div>
+    <div class="layer on"><img src="/img/shots/home.webp" alt="Moxie Home with the next meeting, a pre-meeting brief button and recent notes"></div>
+    <div class="layer"><video src="/img/video/during.mp4" poster="/img/video/during-poster.webp" autoplay muted loop playsinline aria-label="A video call with four people. The small Moxie recording control floats above it with the time, two sound meters and Stop"></video></div>
+    <div class="layer"><video src="/img/video/cite.mp4" poster="/img/video/cite-poster.webp" autoplay muted loop playsinline aria-label="Clicking each citation in the enhanced notes shows the quoted lines and highlights them in the transcript"></video></div>
+    <div class="layer"><video src="/img/video/chat.mp4" poster="/img/video/chat-poster.webp" autoplay muted loop playsinline aria-label="A saved chat: a question across meetings, a cited answer and the steps Moxie used"></video></div>
   </div></div>
+</section>
+
+<section class="dream" id="dreaming" aria-labelledby="dream-title">
+  <div class="panel">
+    <div class="head reveal">
+      <small>New · Dreaming</small>
+      <h2 id="dream-title">Moxie dreams<br>on your meetings.</h2>
+      <p>When your Mac is idle and on power, Moxie reads your meetings again. Each day you get up to three new cards, a recap of yesterday and what is still open. Every card cites the transcript lines.</p>
+    </div>
+    <div class="window grow img"><video src="/img/video/dreaming.mp4" poster="/img/video/dreaming-poster.webp" autoplay muted loop playsinline aria-label="The Dreaming page: a recap of yesterday, new cards for a recurring topic, a moved promise and a connection, and the Promises and Topics lists"></video></div>
+    <ul class="points">
+      <li class="reveal"><h3>Promises, both ways.</h3><p>What you owe, and what others owe you.</p></li>
+      <li class="reveal"><h3>Topics that come back.</h3><p>Recurring topics and blockers, for each person.</p></li>
+      <li class="reveal"><h3>Connections.</h3><p>Two people raised the same thing in different meetings.</p></li>
+      <li class="reveal"><h3>Dropped threads.</h3><p>Open items, moved dates and people you lost touch with.</p></li>
+    </ul>
+    <p class="foot">Dismiss a card, ask about it or draft a follow-up. Turn Dreaming off, or leave out a note or a folder. It all stays on your Mac.</p>
+  </div>
 </section>
 
 <section class="tiles">
