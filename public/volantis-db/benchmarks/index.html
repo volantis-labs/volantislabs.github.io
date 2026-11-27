@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Volantis DB benchmarks: method and all numbers</title>
+<meta name="description" content="How we measure Volantis DB: BEIR vector search against Chroma, hnswlib, LanceDB, sqlite-vec and USearch, hybrid and BM25 quality, text API latency and kernel timings. Hardware, settings, caveats and what is not published yet.">
+<link rel="icon" href="/img/volantis-db/logo.svg" type="image/svg+xml">
+<link rel="icon" href="/img/volantis-db/favicon.png" type="image/png">
+<link rel="stylesheet" href="/volantis-db/db.css">
+<script src="/volantis-db/db.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="gh" viewBox="0 0 16 16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></symbol>
+  <symbol id="copy" viewBox="0 0 16 16"><rect x="5" y="5" width="9" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 3.5V3a1.5 1.5 0 00-1.5-1.5h-6A1.5 1.5 0 002 3v6A1.5 1.5 0 003.5 10.5H4" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+  <symbol id="search" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="arrow" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="tick" viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/volantis-db/"><img src="/img/volantis-db/logo.svg" alt="">Volantis DB <span class="ver">v0.1.0</span></a>
+    <nav aria-label="Volantis DB">
+      <a href="/volantis-db/benchmarks/" aria-current="page">Benchmarks</a>
+      <a href="/volantis-db/docs/">Docs</a>
+      <a class="gh hide-sm" href="https://github.com/volantis-labs/volantis-db" rel="noopener"><svg width="16" height="16" aria-hidden="true"><use href="#gh"/></svg>GitHub</a>
+      <a class="btn sm" href="/volantis-db/docs/get-started/install/">Get started</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="page-head">
+  <div class="wrap">
+    <span class="eyebrow">Benchmarks</span>
+    <h1>Method and all numbers.</h1>
+    <p>Speed claims are easy to make and hard to check. This page says what we measured, on what machine, with which settings, where a rival wins and what we have not published yet.</p>
+  </div>
+</section>
+
+<div class="wrap doc-grid">
+  <nav class="toc" aria-label="On this page">
+    <b>On this page</b>
+    <ol>
+      <li><a href="#summary">Summary</a></li>
+      <li><a href="#vector">Vector search on BEIR</a></li>
+      <li><a href="#method">Method</a></li>
+      <li><a href="#why">Why it is fast</a></li>
+      <li><a href="#hybrid">Hybrid quality</a></li>
+      <li><a href="#bm25">Full-text quality</a></li>
+      <li><a href="#text">Text API latency</a></li>
+      <li><a href="#kernels">Kernel timings</a></li>
+      <li><a href="#durability">Cost of durability</a></li>
+      <li><a href="#limits">Caveats</a></li>
+      <li><a href="#reproduce">Run it yourself</a></li>
+    </ol>
+  </nav>
+
+  <article class="prose">
+    <section id="summary">
+      <h2>Summary</h2>
+      <ul>
+        <li>On three BEIR datasets, Volantis DB had the <b>lowest p95 vector-search latency</b> of six in-process libraries: 0.06 ms on SciFact, 0.11 ms on TREC-COVID and 0.88 ms on Natural Questions.</li>
+        <li>It got there at the <b>same nDCG@10</b> as the others, to two decimal places, on SciFact and Natural Questions. On TREC-COVID, Chroma is a little more accurate (0.84 against 0.83).</li>
+        <li>The margin is large on SciFact and TREC-COVID (9× to 56× against the next libraries) and small on Natural Questions (1.5× against Chroma).</li>
+        <li>Hybrid search beat vector-only and BM25-only search on SciFact in our tuning run (nDCG@10 0.764 against 0.718 and 0.692).</li>
+        <li>All numbers are from one machine: an Apple M3 Max MacBook Pro. We have not measured Windows yet.</li>
+      </ul>
+    </section>
+
+    <section id="vector">
+      <h2>Vector search on BEIR</h2>
+      <p>Each dot is one library on one dataset. Lower is faster. Further right is more accurate. Pick a dataset, or click a library in the legend to compare it with Volantis DB.</p>
+      <div class="bench" style="margin-top:18px">
+        <div class="bar">
+          <div class="chips" id="bench-chips" role="group" aria-label="Dataset">
+            <button class="chip" type="button" data-ds="all" aria-pressed="true">All</button>
+            <button class="chip" type="button" data-ds="scifact" aria-pressed="false">SciFact</button>
+            <button class="chip" type="button" data-ds="trec" aria-pressed="false">TREC-COVID</button>
+            <button class="chip" type="button" data-ds="nq" aria-pressed="false">Natural Questions</button>
+          </div>
+          <p class="readout" id="readout" aria-live="polite"></p>
+        </div>
+        <div class="chart" id="chart"><div class="tip" role="tooltip"></div></div>
+        <div class="legend-row" id="legend" role="group" aria-label="Pick a library">
+        <button type="button" data-lib="Volantis DB" aria-pressed="false"><i style="background:#b47a00"></i>Volantis DB</button>
+        <button type="button" data-lib="Chroma" aria-pressed="false"><i style="background:#6859b8"></i>Chroma</button>
+        <button type="button" data-lib="hnswlib" aria-pressed="false"><i style="background:#b85b43"></i>hnswlib</button>
+        <button type="button" data-lib="LanceDB" aria-pressed="false"><i style="background:#336b87"></i>LanceDB</button>
+        <button type="button" data-lib="sqlite-vec" aria-pressed="false"><i style="background:#4a4944"></i>sqlite-vec</button>
+        <button type="button" data-lib="USearch" aria-pressed="false"><i style="background:#547343"></i>USearch</button>
+      </div>
+        <div class="foot"><span>BEIR · APPLE M3 MAX · WARM INDEXES · K=10 · P95</span></div>
+      </div>
+      <div class="tbl-scroll">
+      <table class="data">
+        <thead><tr><th>Library</th><th class="n">SciFact p95</th><th class="n">nDCG@10</th><th class="n">TREC-COVID p95</th><th class="n">nDCG@10</th><th class="n">NQ p95</th><th class="n">nDCG@10</th></tr></thead>
+        <tbody>
+          <tr class="us"><td>Volantis DB</td><td class="n">0.06 ms</td><td class="n">0.69</td><td class="n">0.11 ms</td><td class="n">0.83</td><td class="n">0.88 ms</td><td class="n">0.73</td></tr>
+          <tr><td>Chroma</td><td class="n">0.55 ms</td><td class="n">0.69</td><td class="n">1.17 ms</td><td class="n">0.84</td><td class="n">1.35 ms</td><td class="n">0.73</td></tr>
+          <tr><td>hnswlib</td><td class="n">1.34 ms</td><td class="n">0.69</td><td class="n">1.67 ms</td><td class="n">0.83</td><td class="n">1.91 ms</td><td class="n">0.72</td></tr>
+          <tr><td>LanceDB</td><td class="n">1.71 ms</td><td class="n">0.69</td><td class="n">6.14 ms</td><td class="n">0.83</td><td class="n">—</td><td class="n">—</td></tr>
+          <tr><td>sqlite-vec</td><td class="n">2.53 ms</td><td class="n">0.69</td><td class="n">82.36 ms</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+          <tr><td>USearch</td><td class="n">2.28 ms</td><td class="n">0.68</td><td class="n">1.26 ms</td><td class="n">0.83</td><td class="n">—</td><td class="n">—</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note">A dash means we have no published result for that pair. The sqlite-vec TREC-COVID result is left off the chart so the other points stay readable.</p>
+    </section>
+
+    <section id="method">
+      <h2>Method</h2>
+      <h3>Datasets</h3>
+      <p><a href="https://github.com/beir-cellar/beir" rel="noopener">BEIR</a> is a public benchmark for information retrieval. We used three of its datasets:</p>
+      <ul>
+        <li><a href="https://huggingface.co/datasets/BeIR/scifact" rel="noopener">SciFact</a>: find scientific evidence for a claim.</li>
+        <li><a href="https://huggingface.co/datasets/BeIR/trec-covid" rel="noopener">TREC-COVID</a>: find biomedical papers for COVID-19 research questions.</li>
+        <li><a href="https://huggingface.co/datasets/BeIR/nq" rel="noopener">Natural Questions</a>: find Wikipedia passages for real search-engine questions.</li>
+      </ul>
+      <h3>What we measured</h3>
+      <ul>
+        <li><b>p95 latency:</b> the time under which 95% of the queries finish, in milliseconds. One query asks for the top <code>k = 10</code>.</li>
+        <li><b>nDCG@10:</b> the standard BEIR quality score for the top 10 results. Higher is better, 1.0 is perfect.</li>
+        <li><b>Warm indexes:</b> each index was built and loaded before the timed queries. Cold start is a different number (see <a href="#text">text API latency</a>).</li>
+        <li><b>Vector search only:</b> each library got precomputed query vectors. Embedding time is not in these numbers.</li>
+      </ul>
+      <h3>Machine</h3>
+      <p>MacBook Pro with an Apple M3 Max and 128 GB of memory, macOS 27.0. The SIMD calibration for this machine is in the repo at <code>crates/volantis-db-bench/calibrations/apple-m3-max-mac15-9.json</code>.</p>
+      <h3>Libraries</h3>
+      <p>Chroma, hnswlib, LanceDB, sqlite-vec and USearch, each running in process on the same machine. We compare at the accuracy each library reached, so a fast result with a low nDCG@10 does not count as a win.</p>
+      <div class="callout"><b>Not published yet.</b> The harness that ran the five other libraries, their versions and index settings, and the raw per-query results are not in the public repo today. Until they are, treat these numbers as our own claim, and check them on your data. We will gladly take fixes to how we set up any library.</div>
+    </section>
+
+    <section id="why">
+      <h2>Why it is fast</h2>
+      <ul>
+        <li><b>No hop.</b> The engine runs in your process. A query is a function call: no socket, no serialization, no second process.</li>
+        <li><b>Small codes first.</b> Each sealed segment has a Vamana graph. The walk reads 4-bit Extended-RaBitQ codes, which need no training. Then the best candidates are scored again with full float32 vectors, so the final order is exact for those candidates.</li>
+        <li><b>The right tier for the size.</b> On SIFT-128, a graph was 4.24× faster than a full scan at 30,000 rows (k = 10, recall 0.9985), but only 1.82× faster at 10,000 rows. So a segment gets a graph at 30,000 rows, and small segments use an exact scan.</li>
+        <li><b>Kernels for your CPU.</b> Scalar, NEON and AVX2 code paths, chosen at run time. Property tests check every SIMD path against the scalar one.</li>
+        <li><b>Memory-mapped, immutable segments.</b> Reads need no locks and no copies. Full-text posting blocks hold 64 entries, sized to the 128-byte cache line of Apple silicon.</li>
+      </ul>
+    </section>
+
+    <section id="hybrid">
+      <h2>Hybrid quality</h2>
+      <p>On BEIR SciFact, with Cohere embed-english-v3 vectors and the 300 judged queries, measured on 26 August 2026:</p>
+      <table class="data">
+        <thead><tr><th>Mode</th><th class="n">nDCG@10</th></tr></thead>
+        <tbody>
+          <tr class="us"><td>Hybrid (vector + BM25)</td><td class="n">0.7642</td></tr>
+          <tr><td>Vector only</td><td class="n">0.7181</td></tr>
+          <tr><td>BM25 only</td><td class="n">0.6917</td></tr>
+        </tbody>
+      </table>
+      <p>Hybrid weights from 0.6 to 0.8 stayed within one point. This run used an earlier score normalization. The current fusion policy was tuned again on SciFact, FiQA and TREC-COVID, so its numbers can be a little different. Hybrid in the Store API uses a weighted sum (default weight 0.7 on the vector side). Embedded namespaces use reciprocal rank fusion.</p>
+    </section>
+
+    <section id="bm25">
+      <h2>Full-text quality</h2>
+      <p>The BM25 engine uses the standard settings (k1 = 1.2, b = 0.75). A quality gate checks that its nDCG@10 is within 2 points of Pyserini, the reference BM25 for BEIR, on four datasets. The gate passed on 23 August 2026. Its floors are:</p>
+      <table class="data">
+        <thead><tr><th>Dataset</th><th class="n">Lowest nDCG@10 allowed</th></tr></thead>
+        <tbody><tr><td>TREC-COVID</td><td class="n">0.595</td></tr><tr><td>SciFact</td><td class="n">0.679</td></tr><tr><td>NFCorpus</td><td class="n">0.322</td></tr><tr><td>FiQA</td><td class="n">0.236</td></tr></tbody>
+      </table>
+      <p>We compare BM25 speed with tantivy 0.22.1 and SQLite FTS5 in <code>tools/lexical-bakeoff</code>. Those results are not published yet. The gate needs about 280 MB of BEIR data, so it does not run in CI.</p>
+    </section>
+
+    <section id="text">
+      <h2>Text API latency</h2>
+      <p>The text API embeds the query on the Mac, then searches. FiQA graph store, warm, on the M3 Max. <b>These numbers are for the earlier default model</b> (clean71 query tower with a Core ML query model). They are not measured again for the current e5 pair yet.</p>
+      <table class="data">
+        <thead><tr><th>Warm query</th><th class="n">p50</th><th class="n">p95</th></tr></thead>
+        <tbody>
+          <tr><td>Dense text</td><td class="n">1.102 ms</td><td class="n">1.215 ms</td></tr>
+          <tr><td>Lexical text</td><td class="n">0.964 ms</td><td class="n">3.503 ms</td></tr>
+          <tr><td>Hybrid text</td><td class="n">2.689 ms</td><td class="n">4.661 ms</td></tr>
+          <tr><td>Your own query vector (no embedding)</td><td class="n">0.071 ms</td><td class="n">0.115 ms</td></tr>
+        </tbody>
+      </table>
+      <p>Cold start after a relaunch was about 1.1 s (860 ms to open, 263 ms for the first hybrid query). The first start with an empty Core ML cache was about 2.1 s.</p>
+      <h3>Current default model, on the search-lab corpus</h3>
+      <p>For the <a href="/volantis-db/#lab">search lab</a>, we ran the current default pair (v98-8-r1 query tower on MLX) on 40 short documents, from Node, on the same M3 Max, on 27 November 2026. Median of 41 warm calls:</p>
+      <table class="data">
+        <thead><tr><th>Mode</th><th class="n">p50, embedding included</th></tr></thead>
+        <tbody><tr><td>Full text</td><td class="n">0.006–0.015 ms</td></tr><tr><td>Vector</td><td class="n">6.6–8.3 ms</td></tr><tr><td>Hybrid</td><td class="n">7.9–8.4 ms</td></tr></tbody>
+      </table>
+      <p>Almost all of the vector and hybrid time is the query tower on the GPU. With your own query vectors, there is no embedding step. The raw output is in <a href="/volantis-db/demo-results.json">demo-results.json</a>.</p>
+    </section>
+
+    <section id="kernels">
+      <h2>Kernel timings</h2>
+      <p>One distance between two 768-dimension vectors, on the M3 Max (measured 20 August 2026, on power):</p>
+      <table class="data">
+        <thead><tr><th>Kernel</th><th class="n">Time</th><th class="n">Share of the hardware limit</th></tr></thead>
+        <tbody>
+          <tr><td>int8 dot product</td><td class="n">10.0 ns</td><td class="n">95%</td></tr>
+          <tr><td>1-bit Hamming</td><td class="n">2.9 ns</td><td class="n">41%</td></tr>
+          <tr><td>float32</td><td class="n">43.3 ns</td><td class="n">53%</td></tr>
+          <tr><td>float16</td><td class="n">44.3 ns</td><td class="n">80%</td></tr>
+        </tbody>
+      </table>
+      <p>CI fails if a kernel drops below its performance floor.</p>
+    </section>
+
+    <section id="durability">
+      <h2>Cost of durability</h2>
+      <p>The default mode does not call fsync on each write. That keeps writes fast, and a killed process still keeps every acknowledged write. A power cut can lose the most recent writes. If the store is the only copy of the data, choose the <code>durable</code> mode. On our test Mac, a 4 KiB write with a full sync took 20.8× the median time of an ordered write.</p>
+    </section>
+
+    <section id="limits">
+      <h2>Caveats</h2>
+      <ul>
+        <li>One machine, Apple silicon only. Your hardware and data will give different numbers.</li>
+        <li>The BEIR chart is the result of one setup of each library. A different index setting can move a library a lot.</li>
+        <li>The rival harness, versions, settings and raw results are not published yet.</li>
+        <li>The text API table is for the earlier default model.</li>
+        <li>Search-lab timings come from a tiny corpus. They show the cost of the query embedding, not the cost of search at scale.</li>
+      </ul>
+    </section>
+
+    <section id="reproduce">
+      <h2>Run it yourself</h2>
+      <p>The benchmark tools are in the <a href="https://github.com/volantis-labs/volantis-db" rel="noopener">volantis-db repo</a>:</p>
+      <ul>
+        <li><code>crates/volantis-db-bench</code>: BEIR loader and evaluation, recall harness, hybrid and planner sweeps.</li>
+        <li><code>tools/lexical-bakeoff</code>: BM25 against tantivy and SQLite FTS5.</li>
+        <li><code>scripts/bench-text-memory.sh</code>: memory use during text ingest.</li>
+      </ul>
+      <p>The search-lab and graph recordings on this site come from <code>tools/volantis-db-demo</code> in the site repo. Each script opens the real engine, runs the queries and saves the output.</p>
+      <pre class="code solo"><code>git clone https://github.com/volantis-labs/volantis-db.git
+cd volantis-db
+cargo test --workspace
+cargo run --release -p volantis-db --example five_vectors_search</code></pre>
+    </section>
+  </article>
+</div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Volantis Labs · Volantis DB is free and open source under GPL-3.0</span>
+    <nav aria-label="Footer">
+      <a href="/volantis-db/benchmarks/">Benchmarks</a>
+      <a href="/volantis-db/docs/">Docs</a>
+      <a href="https://github.com/volantis-labs/volantis-db/blob/main/CHANGELOG.md" rel="noopener">Changelog</a>
+      <a href="https://github.com/volantis-labs/volantis-db" rel="noopener">GitHub</a>
+      <a href="/moxie/">Moxie</a>
+      <a href="/">Volantis Labs</a>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>

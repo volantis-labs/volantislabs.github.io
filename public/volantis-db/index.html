@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Volantis DB: vector, full-text and graph search inside your app</title>
+<meta name="description" content="Volantis DB is an embedded database for vector, full-text (BM25) and hybrid search, with a graph you query in Cypher. It runs in your process. Rust, C, Python, Node.js and Swift. Free and open source under GPL-3.0.">
+<meta property="og:title" content="Volantis DB: search that runs inside your app">
+<meta property="og:description" content="Vector, full-text, hybrid and graph search in one embedded library. Lowest p95 latency of six libraries on three BEIR datasets, at the same nDCG@10.">
+<meta property="og:image" content="https://volantislabs.dev/img/volantis-db/banner.png">
+<link rel="icon" href="/img/volantis-db/logo.svg" type="image/svg+xml">
+<link rel="icon" href="/img/volantis-db/favicon.png" type="image/png">
+<link rel="stylesheet" href="/volantis-db/db.css">
+<script src="/volantis-db/db.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="gh" viewBox="0 0 16 16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></symbol>
+  <symbol id="copy" viewBox="0 0 16 16"><rect x="5" y="5" width="9" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 3.5V3a1.5 1.5 0 00-1.5-1.5h-6A1.5 1.5 0 002 3v6A1.5 1.5 0 003.5 10.5H4" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+  <symbol id="search" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="arrow" viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="tick" viewBox="0 0 20 20"><path d="M4 10.5l4 4 8-9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/volantis-db/"><img src="/img/volantis-db/logo.svg" alt="">Volantis DB <span class="ver">v0.1.0</span></a>
+    <nav aria-label="Volantis DB">
+      <a href="/volantis-db/benchmarks/">Benchmarks</a>
+      <a href="/volantis-db/docs/">Docs</a>
+      <a class="gh hide-sm" href="https://github.com/volantis-labs/volantis-db" rel="noopener"><svg width="16" height="16" aria-hidden="true"><use href="#gh"/></svg>GitHub</a>
+      <a class="btn sm" href="/volantis-db/docs/get-started/install/">Get started</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">Embedded search database</span>
+      <h1>Search that runs <em>inside</em> your&nbsp;app.</h1>
+      <p class="lede">Volantis DB is one library for <b>vector, full-text and hybrid search</b>, with a <b>graph you query in Cypher</b>. <b>Give it text, get text back:</b> our on-device model pair does the embedding. No server, no API keys, no network hop.</p>
+
+      <div class="install" data-tabset="lang">
+        <div class="tabs" data-tabs aria-label="Package">
+          <button type="button" data-key="py">Python</button>
+          <button type="button" data-key="ts">Node.js</button>
+          <button type="button" data-key="rs">Rust</button>
+          <button type="button" data-key="swift">Swift</button>
+          <button type="button" data-key="c">C</button>
+        </div>
+        <div class="line">
+          <code data-pane="py" data-text="python -m pip install volantis-db"><span class="p">$</span>python -m pip install volantis-db</code>
+          <code data-pane="ts" data-text="npm install volantis-db" hidden><span class="p">$</span>npm install volantis-db</code>
+          <code data-pane="rs" data-text="cargo add volantis-db" hidden><span class="p">$</span>cargo add volantis-db</code>
+          <code data-pane="swift" data-text=".package(url: &quot;https://github.com/volantis-labs/volantis-db&quot;, from: &quot;0.1.0&quot;)" hidden><span class="p">+</span>.package(url: "https://github.com/volantis-labs/volantis-db", from: "0.1.0")</code>
+          <code data-pane="c" data-text="https://github.com/volantis-labs/volantis-db/releases" hidden><span class="p">↓</span>github.com/volantis-labs/volantis-db/releases</code>
+          <button class="copy" type="button" aria-label="Copy"><svg aria-hidden="true"><use href="#copy"/></svg></button>
+        </div>
+        <div class="hint">
+          <span data-pane="py">PyPI wheel with the native library. Python 3.11+, macOS 13+ on Apple silicon.</span>
+          <span data-pane="ts" hidden>Native addon included. Node 18+ on macOS and Windows x64. Tested in Electron 44.</span>
+          <span data-pane="rs" hidden>The core on crates.io. Add volantis-db-text for the on-device model.</span>
+          <span data-pane="swift" hidden>Swift Package Manager, macOS 14+. An async actor API over the C ABI.</span>
+          <span data-pane="c" hidden>Release archive for Apple silicon: volantis_db.h with static and dynamic libraries.</span>
+        </div>
+      </div>
+
+      <div class="ctas">
+        <a class="btn" href="/volantis-db/docs/get-started/text-in-text-out/">Read the quick start <svg aria-hidden="true"><use href="#arrow"/></svg></a>
+        <a class="btn ghost" href="#lab">Try the search lab</a>
+      </div>
+      <p class="meta"><span>v0.1.0</span><span>GPL-3.0</span><span>macOS and Windows x64</span><span>Rust core</span></p>
+    </div>
+
+    <div class="field" aria-label="A picture of search: each dot is a document. The red point is a query. Dark dots are its nearest neighbours. Orange dots match a word of the query.">
+      <div class="legend" aria-hidden="true"><span><i style="background:#b98a25;opacity:.6"></i>document</span><span><i style="background:#0e1a36"></i>nearest</span><span><i style="background:#f07b1d"></i>word match</span><span><i style="background:#8b0e0e"></i>query</span></div>
+      <svg id="field" viewBox="0 0 500 460" aria-hidden="true"></svg>
+      <span class="tip-click" aria-hidden="true">Click to move the query</span>
+      <div class="hud" aria-hidden="true"><span class="q-text" id="field-q"><i>query</i>get my money back</span><span class="t" id="field-t">vector · top 5</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="proof" aria-label="Key numbers">
+  <div class="wrap">
+    <div class="stat"><div class="big">0.06<small>ms</small></div><p class="lbl">p95 vector search on BEIR SciFact, Apple M3 Max</p></div>
+    <div class="stat"><div class="big">&lt;1<small>ms</small></div><p class="lbl">p95 on all three BEIR datasets we ran, including Natural Questions</p></div>
+    <div class="stat"><div class="big">4<small>in 1</small></div><p class="lbl">Vector, full-text, hybrid and graph search in one store</p></div>
+    <div class="stat"><div class="big">5<small>APIs</small></div><p class="lbl">Rust, C, Python, Node.js and Swift on one native engine</p></div>
+  </div>
+</section>
+
+<section class="section" id="models">
+  <div class="wrap">
+    <div class="towers reveal">
+      <div class="towers-head">
+        <span class="eyebrow">Text in, text out</span>
+        <h2>Two towers. One shared space.</h2>
+        <p>You give Volantis DB text and get text back. Inside, a <b>specialized asymmetric model pair</b> runs on your Mac. A document tower reads each passage once, when you write it. <b>Our own small query tower</b> reads each question, every time you search. We trained it to land in the same 384-dimension space as the documents. So a short question finds the right passage, even in another language.</p>
+      </div>
+      <div class="tw-stage">
+        <div class="tw-col">
+          <span class="tw-when">At write time · once</span>
+          <div class="tower doc" id="tower-doc">
+            <span class="who">multilingual-e5-small</span>
+            <b>Document tower</b>
+            <div class="layers" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <dl><dt>Parameters</dt><dd>117.5 M</dd><dt>Reads up to</dt><dd>512 tokens</dd><dt>Prefix</dt><dd>passage:</dd></dl>
+          </div>
+          <div class="tw-docs" id="tw-docs" aria-label="Example documents"></div>
+        </div>
+        <div class="tw-space" id="tw-space">
+          <span class="cap">Shared space · 384 dimensions</span>
+          <svg id="tw-svg" viewBox="0 0 520 440" role="img" aria-label="Documents are points in a shared space. A question becomes a point in the same space, next to the documents that answer it."></svg>
+          <div class="ttip" id="tw-tip"></div>
+        </div>
+        <div class="tw-col">
+          <span class="tw-when">At search time · every question</span>
+          <div class="tower q" id="tower-q">
+            <span class="who">v98-8-r1 · our model</span>
+            <b>Query tower</b>
+            <div class="layers" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <dl><dt>Parameters</dt><dd>52.1 M</dd><dt>Reads up to</dt><dd>96 tokens</dd><dt>Vocabulary</dt><dd>98,304 pieces</dd></dl>
+          </div>
+          <div class="tw-qs chips" id="tw-qs" role="group" aria-label="Ask a question"></div>
+          <div class="tw-out" id="tw-out" aria-live="polite"></div>
+        </div>
+      </div>
+      <div class="tw-facts">
+        <div><b>2.3× smaller</b><span>Query tower against document tower. Searches pay for the small one.</span></div>
+        <div><b>384 dims</b><span>Both towers: mean pooling, L2-normalized, dot-product score.</span></div>
+        <div><b>14 languages</b><span>en, es, fr, de, pt, it, ru, zh, ja, ko, hi, ar, id, vi.</span></div>
+        <div><b>348 MB</b><span>One download, SHA-256 checked. Then fully offline.</span></div>
+      </div>
+      <div class="tw-models">
+        <a href="https://huggingface.co/volantis-labs/volantis-db-v98-e5-small" rel="noopener"><span class="tag">Default · Hugging Face</span><code>volantis-labs/volantis-db-v98-e5-small</code><span>Our v98-8-r1 query tower with the multilingual-e5-small document tower. FP16 on MLX. Pinned to revision 5909e5a.</span></a>
+        <a href="https://huggingface.co/volantis-labs/volantis-db-clean71-arctic-m-v2" rel="noopener"><span class="tag">Earlier default · Hugging Face</span><code>volantis-labs/volantis-db-clean71-arctic-m-v2</code><span>Our clean71 query tower with an Arctic-M v2 document tower and a Core ML query model. Stores built with it keep this pin.</span></a>
+        <a href="https://huggingface.co/intfloat/multilingual-e5-small" rel="noopener"><span class="tag">Base · Hugging Face</span><code>intfloat/multilingual-e5-small</code><span>The document tower of the default pair, used without changes.</span></a>
+      </div>
+      <p class="tw-note">The picture shows the idea; the points are not a projection of real vectors. The links are the real top 3 from the recorded vector search. Quality drops outside the 14 languages, and Dutch queries are a known weak point (Belebele nDCG@10 0.764 against 0.929 with e5 as the query tower). Bring your own vectors if you prefer: every API takes float32 too.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="speed">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Measured, not promised</span>
+      <h2>Fastest at the same accuracy.</h2>
+      <p>We ran six in-process libraries on three BEIR retrieval datasets on one Apple M3 Max, with warm indexes and k&nbsp;=&nbsp;10. Each dot is one library on one dataset. Lower is faster. Further right is more accurate. Speed only counts at the same accuracy.</p>
+    </div>
+    <div class="bench reveal">
+      <div class="bar">
+        <div class="chips" id="bench-chips" role="group" aria-label="Dataset">
+          <button class="chip" type="button" data-ds="all" aria-pressed="true">All</button>
+          <button class="chip" type="button" data-ds="scifact" aria-pressed="false">SciFact</button>
+          <button class="chip" type="button" data-ds="trec" aria-pressed="false">TREC-COVID</button>
+          <button class="chip" type="button" data-ds="nq" aria-pressed="false">Natural Questions</button>
+        </div>
+        <p class="readout" id="readout" aria-live="polite"></p>
+      </div>
+      <div class="chart" id="chart"><div class="tip" role="tooltip"></div></div>
+      <div class="legend-row" id="legend" role="group" aria-label="Pick a library">
+        <button type="button" data-lib="Volantis DB" aria-pressed="false"><i style="background:#b47a00"></i>Volantis DB</button>
+        <button type="button" data-lib="Chroma" aria-pressed="false"><i style="background:#6859b8"></i>Chroma</button>
+        <button type="button" data-lib="hnswlib" aria-pressed="false"><i style="background:#b85b43"></i>hnswlib</button>
+        <button type="button" data-lib="LanceDB" aria-pressed="false"><i style="background:#336b87"></i>LanceDB</button>
+        <button type="button" data-lib="sqlite-vec" aria-pressed="false"><i style="background:#4a4944"></i>sqlite-vec</button>
+        <button type="button" data-lib="USearch" aria-pressed="false"><i style="background:#547343"></i>USearch</button>
+      </div>
+      <div class="foot"><span>BEIR · APPLE M3 MAX · WARM INDEXES · K=10 · P95</span><a href="/volantis-db/benchmarks/">Method and all numbers →</a></div>
+    </div>
+    <div class="feats reveal" style="margin-top:16px" id="why">
+      <div class="feat"><h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h14M12 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>No hop</h3><p>The engine runs in your process. A query is a function call, with no socket, no serialization and no second process.</p></div>
+      <div class="feat"><h3><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="6" height="6" rx="1" fill="currentColor"/><rect x="11" y="11" width="6" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Small codes, exact answers</h3><p>A Vamana graph walks 4-bit RaBitQ codes to find candidates, then scores the best ones again with full float32 vectors.</p></div>
+      <div class="feat"><h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 3v3M10 3v3M14 3v3M6 14v3M10 14v3M14 14v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><rect x="4" y="6" width="12" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>Kernels for your CPU</h3><p>NEON or AVX2 kernels, chosen at run time. On an M3 Max, one 768-dimension int8 distance takes 10 ns. Segments are memory-mapped and immutable.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="modes">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">One store</span>
+      <h2>Four ways to search. One&nbsp;store.</h2>
+      <p>Vector, full-text, hybrid and graph queries read the same documents, with one ID space and one snapshot. You do not keep two systems in step.</p>
+    </div>
+    <div class="modes">
+      <article class="mode reveal">
+        <div class="ico"><svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8.5" fill="none" stroke="#b47a00" stroke-width="1.6" stroke-dasharray="3 2.5"/><circle cx="14" cy="14" r="2.6" fill="#8b0e0e"/><circle cx="7" cy="8" r="2" fill="#0e1a36"/><circle cx="21" cy="9" r="2" fill="#0e1a36"/><circle cx="19" cy="21" r="2" fill="#0e1a36"/></svg></div>
+        <h3>Vector</h3>
+        <p>Nearest neighbours for embeddings from any model. Approximate graph search by default. Exact search when you must see every match.</p>
+        <code>float32 · k-NN</code>
+      </article>
+      <article class="mode reveal">
+        <div class="ico"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="5" y="7" width="18" height="2.4" rx="1.2" fill="#0e1a36"/><rect x="5" y="12.8" width="8" height="2.4" rx="1.2" fill="#f07b1d"/><rect x="15" y="12.8" width="8" height="2.4" rx="1.2" fill="#0e1a36"/><rect x="5" y="18.6" width="13" height="2.4" rx="1.2" fill="#0e1a36"/></svg></div>
+        <h3>Full text</h3>
+        <p>BM25 with stemming, accent folding and prefix search for type-ahead. It finds exact words, codes and names that embeddings can miss.</p>
+        <code>BM25</code>
+      </article>
+      <article class="mode reveal">
+        <div class="ico"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M5 8h6l6 12h6M5 20h6l6-12h6" fill="none" stroke="#0e1a36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="14" cy="14" r="2.6" fill="#f9a711"/></svg></div>
+        <h3>Hybrid</h3>
+        <p>Runs vector and full-text search on the same snapshot, then fuses the two rankings. Good when a query has both meaning and key words.</p>
+        <code>vector + BM25, fused</code>
+      </article>
+      <article class="mode graph reveal">
+        <div class="ico"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M8 8l12 4M8 8l2 12M20 12l-10 8" stroke="#f9a711" stroke-width="1.6"/><circle cx="8" cy="8" r="3" fill="#fff"/><circle cx="20" cy="12" r="3" fill="#fff"/><circle cx="10" cy="20" r="3" fill="#f9a711"/></svg></div>
+        <h3>Graph</h3>
+        <p>A property graph in the same store. Query it with openCypher, and call vector or hybrid search inside the query.</p>
+        <code>CALL ze.hybrid_search(…)</code>
+      </article>
+    </div>
+    <p class="unify reveal"><span>One document ID space</span><span>One write-ahead log</span><span>One snapshot for each query</span><span>Filters on every search mode</span></p>
+  </div>
+</section>
+
+<section class="section" id="lab">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Search lab</span>
+      <h2>See what each mode finds.</h2>
+      <p>Forty short help-center articles and eight questions. Pick a question and compare the top 5 from each mode. The right answer is green.</p>
+    </div>
+    <div class="lab-box reveal">
+      <div class="lab-top">
+        <div class="searchbar"><svg aria-hidden="true"><use href="#search"/></svg><span class="typed" id="lab-typed" aria-live="polite"></span><span class="caret" aria-hidden="true"></span><span class="kind" id="lab-kind"></span></div>
+        <div class="chips" id="lab-chips" role="group" aria-label="Example questions"></div>
+      </div>
+      <div class="legs">
+        <div class="leg" id="leg-lexical"><header><h3>Full text<small>BM25 · words that match</small></h3><span class="ms"></span></header><ol></ol><p class="verdict"></p></div>
+        <div class="leg" id="leg-dense"><header><h3>Vector<small>meaning · on-device model</small></h3><span class="ms"></span></header><ol></ol><p class="verdict"></p></div>
+        <div class="leg hyb" id="leg-hybrid"><header><h3>Hybrid<small>both, fused</small></h3><span class="ms"></span></header><ol></ol><p class="verdict"></p></div>
+      </div>
+      <div class="lab-foot">
+        <span>These are real results. We ran Volantis DB with its default on-device model and saved the output. Your browser replays it. It does not run the database. Vector and hybrid times include embedding the query on the Mac's GPU.</span>
+        <span id="lab-meta"></span>
+        <a href="/volantis-db/demo-results.json">Raw results (JSON)</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="graph">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Graph + search</span>
+      <h2>Search, then follow the links.</h2>
+      <p>Find the meetings that match a question, then the people who were in them. One Cypher query does both, on one snapshot.</p>
+    </div>
+    <div class="graph-box">
+      <div class="panel dark reveal">
+        <h3>Ask a question</h3>
+        <div class="gq chips" id="graph-chips" role="group" aria-label="Example questions"></div>
+        <pre class="code"><code><span class="k">CALL</span> <span class="f">ze.hybrid_search</span>($q, <span class="n">3</span>, <span class="s">'exact'</span>) <span class="k">YIELD</span> node, score
+<span class="k">MATCH</span> (m:<span class="f">Meeting</span>)-[:<span class="f">HAS_NOTES</span>]-&gt;(node),
+      (p:<span class="f">Person</span>)-[:<span class="f">ATTENDED</span>]-&gt;(m)
+<span class="k">RETURN</span> m.title <span class="k">AS</span> meeting, score,
+       collect(p.name) <span class="k">AS</span> people
+<span class="k">ORDER BY</span> score <span class="k">DESC</span></code></pre>
+        <p class="note" style="color:#7d88a6;margin-top:14px">$q = <span id="graph-q" style="color:#a5d6a7"></span></p>
+      </div>
+      <div class="panel reveal">
+        <div class="g3d" id="graph-3d" aria-label="A 3D graph of people, meetings and notes. Drag to turn it. Click a node to fly to it."><div class="legend3d" aria-hidden="true"><span><i style="background:#f9a711"></i>person</span><span><i style="background:#0e1a36"></i>meeting</span><span><i style="background:#c9b99a"></i>notes</span></div><span class="hint">Drag to turn · scroll to zoom · click a node</span></div>
+        <svg class="graph-svg" id="graph-svg" role="img" aria-label="Five people linked to the meetings they attended. The meetings that the query finds and their people are highlighted."></svg>
+        <table class="res">
+          <thead><tr><th>Meeting</th><th>Score</th><th>People</th></tr></thead>
+          <tbody id="graph-rows"></tbody>
+        </table>
+        <p class="note" style="margin-top:12px">Recorded output of the real engine. <span class="num" id="graph-ms"></span>, including the query embedding.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="code">
+  <div class="wrap code-grid">
+    <div class="reveal">
+      <span class="eyebrow">Quick start</span>
+      <h2 style="font-size:clamp(2.2rem,5vw,3.6rem);margin:14px 0 22px">Text in. Text out.</h2>
+      <ol class="steps-list">
+        <li><div><b>Install one package.</b><span>The native engine comes with it. There is nothing else to run.</span></div></li>
+        <li><div><b>Open a folder.</b><span>The folder is the database. Reopen it later and your committed data is there.</span></div></li>
+        <li><div><b>Add text.</b><span>The document tower embeds it once, as you write. Long text is split into chunks for you.</span></div></li>
+        <li><div><b>Ask in words.</b><span>The query tower embeds the question. You get the matching text back, ranked. Choose vector, full text or hybrid.</span></div></li>
+      </ol>
+      <p class="note" style="margin-top:22px">Have your own embeddings? Every API also takes float32 vectors. See the <a href="/volantis-db/docs/models/own-vectors/">docs</a>.</p>
+      <p style="margin-top:18px"><a class="btn ghost" href="/volantis-db/docs/get-started/text-in-text-out/">Full quick start <svg aria-hidden="true"><use href="#arrow"/></svg></a></p>
+    </div>
+    <div class="codebox reveal" data-tabset="lang">
+      <div class="bar">
+        <div class="tabs" data-tabs aria-label="Language">
+          <button type="button" data-key="py">Python</button>
+          <button type="button" data-key="ts">TypeScript</button>
+          <button type="button" data-key="rs">Rust</button>
+          <button type="button" data-key="swift">Swift</button>
+          <button type="button" data-key="c">C</button>
+        </div>
+        <button class="copy" type="button" aria-label="Copy"><svg aria-hidden="true"><use href="#copy"/></svg></button>
+      </div>
+<pre class="code" data-pane="py"><code><span class="k">import</span> volantis_db <span class="k">as</span> ze
+
+<span class="c"># The first open downloads the pinned model (about 348 MB) and checks it.</span>
+<span class="k">with</span> ze.<span class="f">open_model</span>(<span class="s">"text-store"</span>) <span class="k">as</span> store:
+    store.<span class="f">ingest_text</span>([<span class="n">1</span>, <span class="n">2</span>], [<span class="s">"The bronze airship flies above the city."</span>,
+                               <span class="s">"Harbour lights at dusk."</span>])
+    result = store.<span class="f">query_text</span>(<span class="s">"airship over the city"</span>, k=<span class="n">3</span>, legs=<span class="s">"hybrid"</span>)
+    <span class="k">for</span> hit <span class="k">in</span> result.hits:
+        <span class="k">print</span>(hit.doc_id, hit.chunk, <span class="f">round</span>(hit.score, <span class="n">4</span>), hit.text)
+    store.<span class="f">delete_text</span>([<span class="n">1</span>])</code></pre>
+<pre class="code" data-pane="ts" hidden><code><span class="k">import</span> { TextStore } <span class="k">from</span> <span class="s">'volantis-db'</span>;
+
+<span class="c">// The first open downloads the pinned model pair (about 348 MB) and checks it.</span>
+<span class="k">const</span> store = <span class="k">await</span> TextStore.<span class="f">openModel</span>({ path: <span class="s">'./notes'</span> });
+<span class="k">try</span> {
+  <span class="k">await</span> store.<span class="f">ingestAsync</span>([
+    { id: <span class="n">1n</span>, revision: <span class="n">1n</span>, text: <span class="s">'Annual plans get a full refund during the first 14 days.'</span> },
+    { id: <span class="n">2n</span>, revision: <span class="n">1n</span>, text: <span class="s">'Dark mode follows the system setting.'</span> },
+  ]);
+  <span class="k">const</span> { hits } = <span class="k">await</span> store.<span class="f">queryAsync</span>({ text: <span class="s">'get my money back'</span>, k: <span class="n">3</span>, legs: <span class="s">'hybrid'</span> });
+  <span class="k">for</span> (<span class="k">const</span> hit <span class="k">of</span> hits) console.<span class="f">log</span>(hit.score.<span class="f">toFixed</span>(<span class="n">3</span>), hit.text);
+} <span class="k">finally</span> {
+  store.<span class="f">close</span>();
+}</code></pre>
+<pre class="code" data-pane="rs" hidden><code><span class="k">use</span> volantis_db_text::{
+    IngestOptions, Legs, ModelOpenOptions, ModelRef, QueryOptions, TextDocument, TextStore,
+};
+
+<span class="k">fn</span> <span class="f">main</span>() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    <span class="c">// The first open downloads the pinned model pair and checks it.</span>
+    <span class="k">let</span> store = TextStore::<span class="f">open_model</span>(
+        <span class="s">"text-store"</span>, &amp;ModelRef::<span class="f">default_model</span>(), ModelOpenOptions::<span class="f">default</span>(),
+    )?;
+    store.<span class="f">ingest_text</span>(
+        &amp;[TextDocument::<span class="f">new</span>(<span class="n">1</span>, <span class="n">1</span>, <span class="s">"The bronze airship flies above the city."</span>)],
+        IngestOptions::<span class="f">default</span>(),
+    )?;
+    <span class="k">let</span> hits = store.<span class="f">query_text</span>(<span class="s">"airship over the city"</span>,
+                                QueryOptions::<span class="f">new</span>(<span class="n">5</span>).<span class="f">with_legs</span>(Legs::Hybrid))?;
+    <span class="k">for</span> hit <span class="k">in</span> &amp;hits {
+        println!(<span class="s">"{:.3} {}"</span>, hit.score, hit.text);
+    }
+    store.<span class="f">close</span>()?;
+    <span class="k">Ok</span>(())
+}</code></pre>
+<pre class="code" data-pane="swift" hidden><code><span class="k">import</span> Foundation
+<span class="k">import</span> VolantisDB  <span class="c">// build with ZE_ENABLE_GRAPH=1 for the text API</span>
+
+<span class="k">let</span> url = URL.applicationSupportDirectory.<span class="f">appending</span>(path: <span class="s">"VolantisText"</span>)
+<span class="c">// The first open downloads the pinned model pair and checks it.</span>
+<span class="k">let</span> store = <span class="k">try</span> <span class="k">await</span> TextStore.<span class="f">open</span>(at: url, model: .default)
+<span class="k">_</span> = <span class="k">try</span> <span class="k">await</span> store.<span class="f">ingest</span>([
+    <span class="f">TextDocument</span>(id: <span class="f">DocumentID</span>(high: <span class="n">0</span>, low: <span class="n">1</span>), revision: <span class="n">1</span>,
+                 text: <span class="s">"The bronze airship flies above the city."</span>),
+])
+<span class="k">let</span> result = <span class="k">try</span> <span class="k">await</span> store.<span class="f">query</span>(<span class="s">"airship over the city"</span>, legs: .hybrid, k: <span class="n">5</span>)
+<span class="k">for</span> hit <span class="k">in</span> result.hits {
+    <span class="f">print</span>(hit.score, hit.text)
+}
+<span class="k">try</span> <span class="k">await</span> store.<span class="f">close</span>()</code></pre>
+<pre class="code" data-pane="c" hidden><code><span class="k">#include</span> <span class="s">"volantis_db.h"</span>
+<span class="k">#include</span> &lt;stdio.h&gt;
+<span class="k">#include</span> &lt;string.h&gt;
+
+<span class="k">int</span> <span class="f">main</span>(<span class="k">void</span>) {
+    ZeTextModelRef model = { .abi_size = <span class="f">sizeof</span>(model) };
+    <span class="f">ze_text_default_model</span>(&amp;model);              <span class="c">/* pinned model pair, borrowed */</span>
+    ZeTextOpenModelRequest open = { .abi_size = <span class="f">sizeof</span>(open) };
+    open.store.abi_size = <span class="f">sizeof</span>(open.store);
+    open.store.path = (<span class="k">const</span> uint8_t *)<span class="s">"text-store"</span>; open.store.path_len = <span class="n">10</span>;
+    open.store.commit_tier = <span class="n">1</span>;                 <span class="c">/* ordered */</span>
+    open.store.reader_drain_timeout_ms = <span class="n">250</span>;
+    open.store.max_resident_bytes = UINT64_MAX; open.store.max_temp_bytes = UINT64_MAX;
+    open.repo = model.repo; open.repo_len = model.repo_len;
+    open.revision = model.revision; open.revision_len = model.revision_len;
+    open.manifest_sha256 = model.manifest_sha256;
+    open.manifest_sha256_len = model.manifest_sha256_len;
+    ze_handle store = <span class="n">0</span>;
+    <span class="k">if</span> (<span class="f">ze_text_open_model</span>(&amp;open, &amp;store) != ZE_OK) <span class="k">return</span> <span class="n">1</span>;
+
+    <span class="k">const</span> <span class="k">char</span> *text = <span class="s">"The bronze airship flies above the city."</span>;
+    ZeTextDocument doc = { .abi_size = <span class="f">sizeof</span>(doc), .doc_id = { .low = <span class="n">1</span> }, .revision = <span class="n">1</span>,
+                           .text = (<span class="k">const</span> uint8_t *)text, .text_len = <span class="f">strlen</span>(text) };
+    ZeTextIngestRequest ingest = { .abi_size = <span class="f">sizeof</span>(ingest), .documents = &amp;doc,
+        .document_count = <span class="n">1</span>, .embed_batch_size = <span class="n">1</span>, .seal_every = <span class="n">1</span>, .channel_capacity = <span class="n">1</span> };
+    ZeMutationReport report = { .abi_size = <span class="f">sizeof</span>(report) };
+    <span class="k">if</span> (<span class="f">ze_text_ingest</span>(store, &amp;ingest, &amp;report) != ZE_OK) <span class="k">return</span> <span class="n">1</span>;
+
+    <span class="k">const</span> <span class="k">char</span> *q = <span class="s">"airship over the city"</span>;
+    ZeTextQueryRequest query = { .abi_size = <span class="f">sizeof</span>(query), .text = (<span class="k">const</span> uint8_t *)q,
+                                 .text_len = <span class="f">strlen</span>(q), .k = <span class="n">5</span>, .legs = <span class="n">2</span> <span class="c">/* hybrid */</span> };
+    ZeTextQueryResult result = { .abi_size = <span class="f">sizeof</span>(result) };
+    <span class="k">if</span> (<span class="f">ze_text_query</span>(store, &amp;query, &amp;result) != ZE_OK) <span class="k">return</span> <span class="n">1</span>;
+    <span class="f">printf</span>(<span class="s">"%zu hits\n"</span>, result.hit_count);
+    <span class="f">ze_text_query_result_free</span>(&amp;result);
+    <span class="k">return</span> <span class="f">ze_close</span>(store) == ZE_OK ? <span class="n">0</span> : <span class="n">1</span>;
+}</code></pre>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="production">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Production controls</span>
+      <h2>Built like a database, not a demo.</h2>
+      <p>Search is only half the job. The other half is what happens when the app crashes, the disk fills or a query takes too long.</p>
+    </div>
+    <div class="feats reveal">
+      <div class="feat"><h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10a6 6 0 1 0 2-4.5M4 3v3.5h3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Crash safe</h3><p>Writes go through a write-ahead log. If the app is killed, every acknowledged write is there when you reopen. For power loss, turn on the <code>durable</code> mode, which syncs to disk.</p></div>
+      <div class="feat"><h3><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="14" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 8h14" stroke="currentColor" stroke-width="1.8"/></svg>One snapshot per query</h3><p>Each commit publishes an immutable generation. A query reads one generation and tells you which one.</p></div>
+      <div class="feat"><h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 4h14l-5.5 6.5V16l-3-1.5v-4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Typed filters</h3><p>Filter on typed attributes and time ranges. Filters apply to each search leg before ranking, not after.</p></div>
+      <div class="feat"><h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10l3.5 3.5L15 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Safe retries</h3><p>Every document has a revision. Send the same write again and nothing changes. An older revision is refused, so a slow retry cannot undo a new edit.</p></div>
+      <div class="feat"><h3><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 7v4l2.5 1.5M8 2.5h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Deadlines and cancel</h3><p>Give a query or a write a deadline, or cancel it. In Node, pass an <code>AbortSignal</code>.</p></div>
+      <div class="feat"><h3><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="6" width="14" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 6V4M10 6V4M14 6V4M6 16v-2M10 16v-2M14 16v-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Memory budgets</h3><p>Set how much resident memory and temporary disk a store may use. The engine refuses work before it goes over.</p></div>
+      <div class="feat"><h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6h12M8 6V4h4v2M6 6l1 10h6l1-10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Retention and purge</h3><p>Keep old generations as long as you need them. Purge removes deleted data from the disk, not only from results.</p></div>
+      <div class="feat"><h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 16V9M8 16V4M13 16v-5M18 16H2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Query diagnostics</h3><p>Each result says which path ran (approximate or exact), the bytes it read and the documents it scored.</p></div>
+      <div class="feat"><h3><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v4M10 13v4M3 10h4M13 10h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="10" r="2" fill="currentColor"/></svg>Embed later</h3><p>Commit text now and let a background worker embed it. Full-text search finds the new row at once.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="moxie">
+  <div class="wrap">
+    <div class="case reveal">
+      <div>
+        <div class="who"><img src="/img/cub-512.png" alt=""><div><b>Moxie</b><span>AI meeting notes for Mac · by Volantis Labs</span></div></div>
+        <h2>It runs Moxie.</h2>
+        <p>Moxie, our meeting-notes app, keeps all of its data in Volantis DB: notes, transcripts, saved chats and the graph of people and meetings. It uses the same 0.1.0 package from npm that you install.</p>
+        <a class="link" href="/moxie/">See Moxie <svg width="16" height="16" aria-hidden="true"><use href="#arrow"/></svg></a>
+      </div>
+      <ul class="uses">
+        <li><code>notes</code><span>Note text, summaries and text read from shared screens. Hybrid search with the on-device model.</span></li>
+        <li><code>segments</code><span>One document for each transcript segment, with typed attributes to filter by meeting.</span></li>
+        <li><code>chats</code><span>Saved chat messages, so you can search old answers.</span></li>
+        <li><code>people</code><span>Person and note nodes in the graph, queried with Cypher.</span></li>
+        <li><code>records</code><span>Everything else: records with typed attributes and full-text search.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="quality">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Tested hard</span>
+      <h2>We try to break it before you do.</h2>
+      <p>Search bugs are quiet: a wrong result still looks like a result. So we check answers against independent oracles, fuzz every decoder and kill the process in the middle of writes.</p>
+    </div>
+    <div class="qual">
+      <div class="q reveal"><div class="big">4,230</div><h3>Rust tests</h3><p>Unit, property and integration tests in the engine. Property tests run each SIMD kernel against the scalar reference.</p></div>
+      <div class="q reveal"><div class="big">21</div><h3>fuzz targets</h3><p>The Cypher parser, C ABI requests, WAL replay, segment and manifest decoding, the tokenizer and 8 graph storage formats.</p></div>
+      <div class="q reveal"><div class="big">12,000</div><h3>adversarial episodes</h3><p>Random workloads checked against 36 independent oracle modules. A release run allows zero failures.</p></div>
+      <div class="q reveal"><div class="big">60</div><h3>kill rounds in CI</h3><p>A writer process is killed at a random point, on macOS and Windows. Every acknowledged write must survive.</p></div>
+    </div>
+    <p class="unify reveal" style="margin-top:18px"><span>3 production dependencies in the core</span><span>No unwrap, expect or panic in the core</span><span>C ABI under AddressSanitizer and ThreadSanitizer</span><span>Old store formats open in CI</span></p>
+  </div>
+</section>
+
+<section class="section" id="platforms">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Platforms</span>
+      <h2>One engine. Five ways to call it.</h2>
+      <p>Every package calls the same Rust engine through the same versioned C ABI. A store written by one language opens in another.</p>
+    </div>
+    <div class="tbl-wrap reveal"><table class="plat"><thead><tr><th>Language</th><th>Package</th><th>Mac, Apple silicon</th><th>Mac, Intel</th><th>Windows x64</th><th>Graph + Cypher</th><th>On-device model</th></tr></thead><tbody>
+<tr><th scope="row">Python</th><td><code>volantis-db</code> on PyPI</td><td>macOS 13+</td><td>Source build, no text model</td><td><span class="no">No</span></td><td><span class="no">No</span></td><td><span class="yes">Yes</span></td></tr>
+<tr><th scope="row">Node.js / TypeScript</th><td><code>volantis-db</code> on npm</td><td>macOS 13+</td><td>macOS 11+</td><td><span class="yes">Yes</span>, Node-API 8 and Electron 44</td><td>Yes (macOS 14+ on Mac)</td><td>macOS</td></tr>
+<tr><th scope="row">Rust</th><td><code>volantis-db</code> on crates.io</td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td><span class="yes">Yes</span></td><td>Source build</td><td><code>volantis-db-text</code>, macOS</td></tr>
+<tr><th scope="row">Swift</th><td>Swift Package Manager</td><td>macOS 14+</td><td>macOS 14+, no text model</td><td>—</td><td><span class="yes">Yes</span>, with <code>ZE_ENABLE_GRAPH=1</code></td><td>Apple silicon</td></tr>
+<tr><th scope="row">C / C++</th><td>Release archive, <code>volantis_db.h</code></td><td>macOS 11+ (graph SDK 14+)</td><td>Source build</td><td>Source build</td><td><span class="yes">Yes</span></td><td>Apple silicon</td></tr>
+</tbody></table></div>
+    <p class="note" style="margin-top:12px">Linux, iOS and Android are not supported yet. The Windows Node addon needs the Visual C++ redistributable. Benchmarks are measured on Apple silicon only.</p>
+  </div>
+</section>
+
+<section class="section" id="limits">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Honest limits</span>
+      <h2>When not to use it.</h2>
+      <p>Volantis DB is new. Here is what it does not do yet, so you can decide fast.</p>
+    </div>
+    <div class="feats reveal">
+      <div class="feat"><h3>You need a server.</h3><p>Volantis DB is a library inside one app, with one writer for each store. It has no network protocol and no replication. If many machines must share one database, use a server database.</p></div>
+      <div class="feat"><h3>You ship on Linux, iOS or Android.</h3><p>Today it runs on macOS (Apple silicon and Intel) and Windows x64. Other platforms are not supported yet.</p></div>
+      <div class="feat"><h3>You need the text model on Windows.</h3><p>Windows has the full engine, but no on-device model yet. Bring your own vectors there.</p></div>
+      <div class="feat"><h3>You need graph search from Python.</h3><p>The Python wheel has no graph support yet, and it is for Apple silicon only. Use Node.js, Swift, Rust or C for the graph.</p></div>
+      <div class="feat"><h3>You need all of Cypher.</h3><p>The graph speaks a bounded openCypher profile. It has no <code>MERGE</code>, <code>UNWIND</code>, <code>UNION</code> or shortest path, and traversals stop at 16 hops.</p></div>
+      <div class="feat"><h3>Your app cannot use GPL code.</h3><p>Volantis DB is GPL-3.0. If you ship it inside your app, the GPL applies to how you ship that app. Read the license before you build on it.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="free reveal">
+      <div>
+        <h2>Free. Open source. In your process.</h2>
+        <p>Volantis DB is free software under GPL-3.0. Read every line that touches your data. The only network call is the optional model download, and you can turn it off.</p>
+        <a class="btn" href="https://github.com/volantis-labs/volantis-db" rel="noopener"><svg aria-hidden="true"><use href="#gh"/></svg>Read the code on GitHub</a>
+      </div>
+      <ul>
+        <li>No server to run</li>
+        <li>No account and no API key</li>
+        <li>No telemetry</li>
+        <li>Works fully offline</li>
+        <li>GPL-3.0 license</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="end">
+  <div class="wrap">
+    <h2>Put search inside your&nbsp;app.</h2>
+    <div class="install" data-tabset="lang">
+      <div class="tabs" data-tabs aria-label="Package">
+        <button type="button" data-key="py">Python</button>
+        <button type="button" data-key="ts">Node.js</button>
+        <button type="button" data-key="rs">Rust</button>
+        <button type="button" data-key="swift">Swift</button>
+        <button type="button" data-key="c">C</button>
+      </div>
+      <div class="line">
+        <code data-pane="py" data-text="python -m pip install volantis-db"><span class="p">$</span>python -m pip install volantis-db</code>
+        <code data-pane="ts" data-text="npm install volantis-db" hidden><span class="p">$</span>npm install volantis-db</code>
+        <code data-pane="rs" data-text="cargo add volantis-db" hidden><span class="p">$</span>cargo add volantis-db</code>
+        <code data-pane="swift" data-text=".package(url: &quot;https://github.com/volantis-labs/volantis-db&quot;, from: &quot;0.1.0&quot;)" hidden><span class="p">+</span>.package(url: "https://github.com/volantis-labs/volantis-db", from: "0.1.0")</code>
+        <code data-pane="c" data-text="https://github.com/volantis-labs/volantis-db/releases" hidden><span class="p">↓</span>github.com/volantis-labs/volantis-db/releases</code>
+        <button class="copy" type="button" aria-label="Copy"><svg aria-hidden="true"><use href="#copy"/></svg></button>
+      </div>
+    </div>
+    <div class="ctas">
+      <a class="btn" href="/volantis-db/docs/get-started/text-in-text-out/">Read the quick start <svg aria-hidden="true"><use href="#arrow"/></svg></a>
+      <a class="btn ghost" href="https://github.com/volantis-labs/volantis-db" rel="noopener"><svg aria-hidden="true"><use href="#gh"/></svg>GitHub</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© 2026 Volantis Labs · Volantis DB is free and open source under GPL-3.0</span>
+    <nav aria-label="Footer">
+      <a href="/volantis-db/benchmarks/">Benchmarks</a>
+      <a href="/volantis-db/docs/">Docs</a>
+      <a href="https://github.com/volantis-labs/volantis-db/blob/main/CHANGELOG.md" rel="noopener">Changelog</a>
+      <a href="https://github.com/volantis-labs/volantis-db" rel="noopener">GitHub</a>
+      <a href="/moxie/">Moxie</a>
+      <a href="/">Volantis Labs</a>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>

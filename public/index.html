@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Volantis Labs</title>
-<meta name="description" content="There's a lot of AI, but this one is yours. Volantis Labs builds private AI that runs on your own computer. Our first product is Moxie: AI-powered meeting notes and prep.">
+<meta name="description" content="There's a lot of AI, but this one is yours. Volantis Labs builds private AI that runs on your own computer: Moxie, AI-powered meeting notes and prep, and Volantis DB, an embedded database for vector, full-text and graph search.">
 <link rel="icon" href="/img/volantis-favicon.png">
 <style>
 :root { --ink:#1d1d1f; --muted:#6e6e73; --bg:#fbfbfd; --orange:#f5a516; --sans:-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
@@ -22,6 +22,8 @@ h1 { font-size:clamp(2.8rem,7vw,5.2rem); font-weight:700; letter-spacing:-.04em;
 .card h2 { font-size:1.6rem; letter-spacing:-.02em; }
 .card p { color:var(--muted); }
 .card .go { margin-left:auto; font-size:1.6rem; color:var(--orange); }
+.cards { display:grid; gap:16px; max-width:560px; margin:0 auto; }
+.card.db img { width:84px; height:auto; padding:6px; }
 footer { padding:20px clamp(16px,4vw,40px) 32px; color:var(--muted); font-size:.82rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
 footer a { color:inherit; }
 nav .brand { display:inline-flex; align-items:center; gap:.55rem; }
@@ -29,16 +31,23 @@ nav .brand img { width:30px; height:30px; }
 </style>
 </head>
 <body>
-<nav><b class="brand"><img src="/img/volantis-mark-512.png" alt="">Volantis Labs</b><span><a href="/moxie/">Moxie</a><a href="mailto:hello@getmoxieapp.com">Contact</a></span></nav>
+<nav><b class="brand"><img src="/img/volantis-mark-512.png" alt="">Volantis Labs</b><span><a href="/moxie/">Moxie</a><a href="/volantis-db/">Volantis DB</a><a href="mailto:hello@getmoxieapp.com">Contact</a></span></nav>
 <main>
   <div>
     <h1>There's a lot of AI...<br>but this one is yours.</h1>
     <p class="sub">We build fast, private AI tools that run on your own machine. Free and open source.</p>
-    <a class="card" href="/moxie/">
-      <img src="/img/cub-512.png" alt="">
-      <div><h2>Moxie</h2><p>AI-powered meeting notes and prep. Fully local, completely free.</p></div>
-      <span class="go">→</span>
-    </a>
+    <div class="cards">
+      <a class="card" href="/moxie/">
+        <img src="/img/cub-512.png" alt="">
+        <div><h2>Moxie</h2><p>AI-powered meeting notes and prep. Fully local, completely free.</p></div>
+        <span class="go">→</span>
+      </a>
+      <a class="card db" href="/volantis-db/">
+        <img src="/img/volantis-db/logo.svg" alt="">
+        <div><h2>Volantis DB</h2><p>Vector, full-text and graph search inside your app. The engine under Moxie.</p></div>
+        <span class="go">→</span>
+      </a>
+    </div>
   </div>
 </main>
 <footer><span>© 2026 Volantis Labs</span><span><a href="/moxie/privacy/">Privacy</a> · <a href="mailto:hello@getmoxieapp.com">Contact</a> · No cookies. No tracking.</span></footer>

@@ -1,0 +1,10 @@
+[
+ {"text":"E-4012","kind":"Exact code","answer":33},
+ {"text":"get my money back","kind":"Same meaning, other words","answer":13},
+ {"text":"where are my old versions","kind":"Same meaning, other words","answer":30},
+ {"text":"cheaper plan for university","kind":"Key words matter","answer":15},
+ {"text":"turn off tracking","kind":"Key words matter","answer":36},
+ {"text":"¿Cómo cancelo mi suscripción?","kind":"Spanish query","answer":12},
+ {"text":"Kann ich ohne Internet arbeiten?","kind":"German query","answer":23},
+ {"text":"ノートをPDFで書き出す","kind":"Japanese query","answer":16}
+]

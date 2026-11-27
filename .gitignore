@@ -2,3 +2,5 @@
 .wrangler/
 node_modules/
 .env
+tools/volantis-db-demo/results.json
+tools/volantis-db-demo/graph-results.json

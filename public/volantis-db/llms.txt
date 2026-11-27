@@ -1,0 +1,40 @@
+# Volantis DB
+
+> Volantis DB is an embedded (in-process) database for vector, full-text (BM25) and hybrid search, with a property graph you query in a bounded openCypher profile. Rust core; packages for Python, Node.js/TypeScript, Swift, C and Rust. Version 0.1.0. License: GPL-3.0. No server, no telemetry. The only network call is the optional model download.
+
+## Install
+- Python: `python -m pip install volantis-db` (Python 3.11+, macOS 13+ on Apple silicon, no graph)
+- Node.js: `npm install volantis-db` (Node 18+, macOS and Windows x64, Electron 44 tested)
+- Rust: `cargo add volantis-db`; on-device model: `cargo add volantis-db-text`
+- Swift: `.package(url: "https://github.com/volantis-labs/volantis-db", from: "0.1.0")` (macOS 14+; text and graph need `ZE_ENABLE_GRAPH=1`)
+- C: release archives at https://github.com/volantis-labs/volantis-db/releases
+
+## Text in, text out
+- Default model: an asymmetric pair in one 384-dimension space. Query tower v98-8-r1 (8-layer BERT, 52.1M parameters, 96 tokens); document tower intfloat/multilingual-e5-small (117.5M parameters, 512 tokens). https://huggingface.co/volantis-labs/volantis-db-v98-e5-small
+- Python: `ze.open_model(path)`, `store.ingest_text(ids, texts)`, `store.query_text(text, k=5, legs="hybrid")`
+- Node: `TextStore.openModel({ path })`, `ingestAsync([{ id, revision, text }])`, `queryAsync({ text, k, legs: 'hybrid' })`
+- Node embedded namespace: `openNamespaceAsync(root, name, { embeddedModel: TextStore.defaultModel, attributes })`, `upsertAsync`, `queryEmbeddedAsync({ text, leg, k, filter })`
+- `legs` / `leg`: `dense`, `lexical` or `hybrid`. Text runs on macOS only (MLX on Apple silicon, CPU on Intel).
+- Offline: pass `offline: true` or set `ZE_MODEL_OFFLINE=1`. Cache: `~/Library/Caches/volantis-db/models`.
+
+## Graph
+- `store.enableGraph()`, `store.graphApply([...nodes and relationships])`, `store.cypher(query, params)`
+- Search inside Cypher: `CALL ze.hybrid_search($text, 5, 'exact') YIELD node, score` (text arguments work on embedded namespaces); also `ze.vector_search` and `ze.text_search`.
+- Not supported: MERGE, UNWIND, UNION, FOREACH, shortest path, unbounded paths (max 16 hops).
+
+## Rules
+- One writer per store. The folder is the database.
+- Default durability does not fsync: a killed process keeps acknowledged writes; a power cut can lose recent ones. Use `durable` mode if the store is the only copy.
+- `delete` hides documents; `purge` and `deleteWhere` remove the bytes from disk.
+- Bindings expose BM25 terms plus a trailing prefix; phrase, fuzzy and phonetic queries are Rust-only.
+
+## Links
+- Site: https://volantislabs.dev/volantis-db/
+- Docs: https://volantislabs.dev/volantis-db/docs/
+- Quick start: https://volantislabs.dev/volantis-db/docs/get-started/text-in-text-out/
+- Benchmarks and method: https://volantislabs.dev/volantis-db/benchmarks/
+- Source: https://github.com/volantis-labs/volantis-db
+- Node guide: https://github.com/volantis-labs/volantis-db/blob/main/bindings/node/README.md
+- Python guide: https://github.com/volantis-labs/volantis-db/blob/main/bindings/python/README.md
+- Swift guide: https://github.com/volantis-labs/volantis-db/blob/main/bindings/swift/README.md
+- Cypher profile: https://github.com/volantis-labs/volantis-db/blob/main/crates/volantis-db-cypher/CYPHER_PROFILE.md
