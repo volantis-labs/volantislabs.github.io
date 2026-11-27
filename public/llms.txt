@@ -1,0 +1,26 @@
+# Volantis Labs
+
+> Volantis Labs builds private AI tools that run on your own computer. All products are free and open source under GPL-3.0. Nothing runs on our servers, and there is no account, no subscription and no tracking.
+
+## Products
+
+- [Moxie](https://volantislabs.dev/moxie/): AI-powered meeting notes and prep for the Mac (macOS 15 or later, Apple silicon or Intel). Moxie reads your calendar and makes a brief before a meeting. It records without a bot, writes the transcript, names the speakers and makes a summary that cites the transcript. You can ask questions about all your meetings. "Dreaming" reads your meetings again when the Mac is idle and makes cards about promises, recurring topics and open items. A local MCP server lets Claude, Codex and other agents read your notes. Audio, transcripts and notes stay on the Mac.
+- [Volantis DB](https://volantislabs.dev/volantis-db/): an embedded (in-process) database for vector, full-text (BM25) and hybrid search, with a property graph that you query with openCypher. Rust core, with packages for Python, Node.js, Swift, C and Rust. Give it text and get text back: an on-device asymmetric model pair makes the vectors. Moxie runs on Volantis DB. Summary for agents: [Volantis DB llms.txt](https://volantislabs.dev/volantis-db/llms.txt)
+
+## Docs
+
+- [Moxie docs](https://volantislabs.dev/moxie/docs/): install, record, notes, editor, search and ask, your data, agents, settings and troubleshooting.
+- [Moxie docs for LLMs](https://volantislabs.dev/moxie/docs/llms.txt): the Moxie docs as Markdown, with full and small versions.
+- [Volantis DB docs](https://volantislabs.dev/volantis-db/docs/): install, text in and text out, search, models, graph, operations, platforms and the API reference.
+- [Volantis DB docs for LLMs](https://volantislabs.dev/volantis-db/docs/llms.txt): the Volantis DB docs as Markdown, with full and small versions.
+
+## Source
+
+- [Moxie on GitHub](https://github.com/volantis-labs/moxie)
+- [Volantis DB on GitHub](https://github.com/volantis-labs/volantis-db)
+
+## Optional
+
+- [Volantis DB benchmarks and method](https://volantislabs.dev/volantis-db/benchmarks/)
+- [Moxie privacy policy](https://volantislabs.dev/moxie/privacy/)
+- [Moxie terms of use](https://volantislabs.dev/moxie/terms/)

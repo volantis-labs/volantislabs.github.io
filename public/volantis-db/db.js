@@ -160,7 +160,7 @@
     const ctx = c.getContext('2d');
     let seed = 42, w = 0, h = 0, dpr = 1;
     const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-    const graphs = Array.from({ length: 11 }, (_, g) => {
+    const graphs = Array.from({ length: 33 }, (_, g) => {
       const n = 4 + Math.floor(rnd() * 6), big = g % 4 === 0;
       const scale = big ? 120 + rnd() * 110 : 34 + rnd() * 46;
       const pts = Array.from({ length: n }, () => ({ x: (rnd() - .5) * scale, y: (rnd() - .5) * scale, r: big ? 2.2 + rnd() * 2.6 : 1.4 + rnd() * 1.8 }));

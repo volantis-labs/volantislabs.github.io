@@ -31,6 +31,7 @@
 ## Links
 - Site: https://volantislabs.dev/volantis-db/
 - Docs: https://volantislabs.dev/volantis-db/docs/
+- Docs for LLMs: https://volantislabs.dev/volantis-db/docs/llms.txt (all pages in one file: https://volantislabs.dev/volantis-db/docs/llms-full.txt)
 - Quick start: https://volantislabs.dev/volantis-db/docs/get-started/text-in-text-out/
 - Benchmarks and method: https://volantislabs.dev/volantis-db/benchmarks/
 - Source: https://github.com/volantis-labs/volantis-db
